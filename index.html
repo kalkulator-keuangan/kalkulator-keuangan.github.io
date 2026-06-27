@@ -370,6 +370,14 @@
     <div id="eduResults"></div>
     <button class="toggle-btn" id="eduToggle" onclick="toggleBreakdown()">Lihat Rincian per Jenjang ▾</button>
     <div id="eduBreakdown" style="display:none; margin-top:14px;"></div>
+
+  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:700;color:var(--text-mid)">📁 Setup Tersimpan</span>
+      <button onclick="promptSaveSetup()" style="padding:5px 12px;background:var(--navy);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">+ Simpan Setup</button>
+    </div>
+    <div id="setupLog-edu"></div>
+  </div>
   </div>
 </div>
 
@@ -433,6 +441,14 @@
   <div style="margin-top:20px">
     <h3 class="section-title">💰 Hasil Perhitungan</h3>
     <div id="retResults"></div>
+
+  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:700;color:var(--text-mid)">📁 Setup Tersimpan</span>
+      <button onclick="promptSaveSetup()" style="padding:5px 12px;background:var(--navy);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">+ Simpan Setup</button>
+    </div>
+    <div id="setupLog-ret"></div>
+  </div>
   </div>
 </div>
 
@@ -478,6 +494,14 @@
   <div style="margin-top:20px">
     <h3 class="section-title">💰 Status Dana Darurat</h3>
     <div id="emResults"></div>
+
+  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:700;color:var(--text-mid)">📁 Setup Tersimpan</span>
+      <button onclick="promptSaveSetup()" style="padding:5px 12px;background:var(--navy);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">+ Simpan Setup</button>
+    </div>
+    <div id="setupLog-em"></div>
+  </div>
   </div>
 </div>
 
@@ -797,6 +821,7 @@ function calcEducation() {
       </div>`;
   });
   document.getElementById('eduBreakdown').innerHTML = html;
+  renderSetupLog();
 }
 
 function toggleBreakdown() {
@@ -876,6 +901,7 @@ function calcRetirement() {
       <div class="result-sub" style="color:rgba(255,255,255,0.6)">per bulan selama ${tahunMenuju} tahun ke depan</div>
     </div>
   `;
+  renderSetupLog();
 }
 
 // ─── Emergency Fund ─────────────────────────────────────
@@ -949,6 +975,7 @@ function calcEmergency() {
     </div>
     ${kekuranganHtml}
   `;
+  renderSetupLog();
 }
 
 // ─── Strategy / Trade-off Engine ────────────────────────
@@ -989,7 +1016,32 @@ function collectSetup(){
     rows,
     surplus:parseRp(document.getElementById('stratSurplus')?.value||'0'),
     allocs,
-    ts:new Date().toISOString()
+    ts:new Date().toISOString(),
+    // Education
+    eduUsia:+(document.getElementById('eduUsia')?.value||0),
+    eduInflasi:+(document.getElementById('eduInflasi')?.value||10),
+    eduReturn:+(document.getElementById('eduReturn')?.value||10),
+    eduLumpsum:parseRp(document.getElementById('eduLumpsum')?.value||'0'),
+    jenjang:(['tk','sd','smp','sma','kul'].map(id=>({
+      id,
+      masuk:parseRp(document.getElementById('jmasuk-'+id)?.value||'0'),
+      spp:parseRp(document.getElementById('jspp-'+id)?.value||'0'),
+      thn:parseInt(document.getElementById('jthn-'+id)?.value)||0
+    }))),
+    // Retirement
+    retUsia:+(document.getElementById('retUsia')?.value||30),
+    retPensiun:+(document.getElementById('retPensiun')?.value||55),
+    retPengeluaran:parseRp(document.getElementById('retPengeluaran')?.value||'0'),
+    retTabungan:parseRp(document.getElementById('retTabungan')?.value||'0'),
+    retInflasi:+(document.getElementById('retInflasi')?.value||6),
+    retReturn:+(document.getElementById('retReturn')?.value||10),
+    retHidup:+(document.getElementById('retHidup')?.value||75),
+    // Emergency
+    emPengeluaran:parseRp(document.getElementById('emPengeluaran')?.value||'0'),
+    emBulan:+(document.getElementById('emBulan')?.value||6),
+    emDana:parseRp(document.getElementById('emDana')?.value||'0'),
+    emTarget:+(document.getElementById('emTarget')?.value||12),
+    emReturn:+(document.getElementById('emReturn')?.value||5)
   };
 }
 
@@ -1019,6 +1071,37 @@ function restoreSetup(data){
     if(surpEl&&data.surplus!==undefined) surpEl.value=data.surplus.toLocaleString('id-ID');
     onSurplusChange();
   }
+  // Restore Education
+  if(data.eduUsia!==undefined){ const e=document.getElementById('eduUsia'); if(e){e.value=data.eduUsia;updateSliderBg(e);} }
+  if(data.eduInflasi!==undefined){ const e=document.getElementById('eduInflasi'); if(e){e.value=data.eduInflasi;updateSliderBg(e);} }
+  if(data.eduReturn!==undefined){ const e=document.getElementById('eduReturn'); if(e){e.value=data.eduReturn;updateSliderBg(e);} }
+  if(data.eduLumpsum!==undefined){ const e=document.getElementById('eduLumpsum'); if(e) e.value=data.eduLumpsum.toLocaleString('id-ID'); }
+  if(data.jenjang&&data.jenjang.length){
+    data.jenjang.forEach(j=>{
+      const me=document.getElementById('jmasuk-'+j.id); const se=document.getElementById('jspp-'+j.id); const te=document.getElementById('jthn-'+j.id);
+      if(me&&j.masuk) me.value=j.masuk.toLocaleString('id-ID');
+      if(se&&j.spp) se.value=j.spp.toLocaleString('id-ID');
+      if(te&&j.thn) te.value=j.thn;
+      updateJenjangTotal(j.id);
+    });
+  }
+  calcEducation();
+  // Restore Retirement
+  if(data.retUsia!==undefined){ const e=document.getElementById('retUsia'); if(e){e.value=data.retUsia;updateSliderBg(e);} }
+  if(data.retPensiun!==undefined){ const e=document.getElementById('retPensiun'); if(e){e.value=data.retPensiun;updateSliderBg(e);} }
+  if(data.retInflasi!==undefined){ const e=document.getElementById('retInflasi'); if(e){e.value=data.retInflasi;updateSliderBg(e);} }
+  if(data.retReturn!==undefined){ const e=document.getElementById('retReturn'); if(e){e.value=data.retReturn;updateSliderBg(e);} }
+  if(data.retHidup!==undefined){ const e=document.getElementById('retHidup'); if(e){e.value=data.retHidup;updateSliderBg(e);} }
+  if(data.retPengeluaran!==undefined){ const e=document.getElementById('retPengeluaran'); if(e) e.value=data.retPengeluaran.toLocaleString('id-ID'); }
+  if(data.retTabungan!==undefined){ const e=document.getElementById('retTabungan'); if(e) e.value=data.retTabungan.toLocaleString('id-ID'); }
+  calcRetirement();
+  // Restore Emergency
+  if(data.emBulan!==undefined){ const e=document.getElementById('emBulan'); if(e){e.value=data.emBulan;updateSliderBg(e);} }
+  if(data.emTarget!==undefined){ const e=document.getElementById('emTarget'); if(e){e.value=data.emTarget;updateSliderBg(e);} }
+  if(data.emReturn!==undefined){ const e=document.getElementById('emReturn'); if(e){e.value=data.emReturn;updateSliderBg(e);} }
+  if(data.emPengeluaran!==undefined){ const e=document.getElementById('emPengeluaran'); if(e) e.value=data.emPengeluaran.toLocaleString('id-ID'); }
+  if(data.emDana!==undefined){ const e=document.getElementById('emDana'); if(e) e.value=data.emDana.toLocaleString('id-ID'); }
+  calcEmergency();
   if(data.allocs){
     const allocEl=document.getElementById('stratAlloc');
     if(allocEl&&allocEl.dataset.built){
@@ -1066,7 +1149,11 @@ function deleteSetupLog(id){
 }
 
 function renderSetupLog(){
-  const el=document.getElementById('setupLog'); if(!el) return;
+  ['setupLog-strat','setupLog-edu','setupLog-ret','setupLog-em'].forEach(id=>{
+    const el=document.getElementById(id); if(el) _renderSetupLogInto(el);
+  });
+}
+function _renderSetupLogInto(el){
   const log=loadSetupLog();
   if(!log.length){
     el.innerHTML='<p style="font-size:11px;color:var(--text-muted);text-align:center;margin:8px 0">Belum ada setup tersimpan. Klik "+ Simpan Setup" untuk menyimpan konfigurasi input saat ini.</p>';
