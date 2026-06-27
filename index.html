@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kalkulator Perencanaan Keuangan</title>
+<meta name="description" content="Hitung dana pendidikan anak, dana pensiun, dan dana darurat. Gratis dan mudah digunakan.">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kalkulator Keuangan">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiS2Fsa3VsYXRvciBQZXJlbmNhbmFhbiBLZXVhbmdhbiIsInNob3J0X25hbWUiOiJLYWxrIEtldWFuZ2FuIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGOUY3RjIiLCJ0aGVtZV9jb2xvciI6IiMxQjJBNEEiLCJpY29ucyI6W119">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<!-- Google Analytics — Ganti G-XXXXXXXXXX dengan Measurement ID kamu -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CSQYY9D982"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-CSQYY9D982');
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C8963E; --gold-light: rgba(200,150,62,0.08); --gold-border: rgba(200,150,62,0.3);
+    --navy: #1B2A4A; --navy-mid: #2D3E5F; --navy-light: #243352;
+    --bg: #F9F7F2; --bg-warm: #EFEBE3; --card: #FFFFFF; --card-warm: #F9F7F2;
+    --border: #E8E4DA; --border-light: #E5E7EB;
+    --text: #1F2937; --text-mid: #374151; --text-light: #6B7280; --text-muted: #9CA3AF;
+    --green: #065F46; --green-mid: #047857; --green-light: #6EE7B7; --green-accent: #059669;
+    --orange: #D97706; --red: #DC2626;
+    --font-body: 'DM Sans', -apple-system, sans-serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --radius: 14px; --radius-sm: 10px; --radius-xs: 8px;
+  }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--font-body); background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+    min-height: 100vh; min-height: 100dvh; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy) 100%);
+    padding: 32px 20px 24px; text-align: center;
+    border-radius: 0 0 24px 24px; box-shadow: 0 4px 20px rgba(27,42,74,0.3);
+  }
+  .header-label { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+  .header h1 { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #fff; line-height: 1.2; }
+  .header p { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 8px; }
+  .share-btn {
+    margin-top: 14px; padding: 8px 22px; background: rgba(200,150,62,0.15);
+    border: 1px solid rgba(200,150,62,0.4); border-radius: 20px;
+    color: var(--gold); font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: var(--font-body); transition: all 0.2s;
+  }
+  .share-btn:active { transform: scale(0.96); }
+
+  /* Tabs */
+  .tabs {
+    display: flex; overflow-x: auto; background: var(--card);
+    margin: 16px 16px 0; border-radius: var(--radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1; min-width: 0; padding: 10px 4px; border: none;
+    border-bottom: 3px solid transparent; background: transparent;
+    color: var(--text-light); font-family: var(--font-body); font-weight: 500;
+    font-size: 12px; cursor: pointer; transition: all 0.25s; display: flex;
+    flex-direction: column; align-items: center; justify-content: center; gap: 3px; white-space: nowrap;
+  }
+  .tab-btn.active {
+    border-bottom-color: var(--gold); background: var(--gold-light);
+    color: var(--gold); font-weight: 700;
+  }
+  .tab-icon { font-size: 17px; }
+
+  /* Content Card */
+  .content {
+    margin: 16px; background: var(--card); border-radius: 18px;
+    padding: 24px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border: 1px solid var(--border); animation: slideUp 0.35s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Section Title */
+  .section-title {
+    font-family: var(--font-display); font-size: 18px; font-weight: 700;
+    color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Input Fields */
+  .field { margin-bottom: 16px; }
+  .field-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text-mid); }
+  .input-wrap {
+    display: flex; align-items: center; border: 1.5px solid #D1D5DB;
+    border-radius: var(--radius-sm); overflow: hidden; background: #fff; transition: border-color 0.2s;
+  }
+  .input-wrap:focus-within { border-color: var(--gold); }
+  .input-prefix {
+    padding: 10px 12px; background: #F3F0EA; color: var(--gold);
+    font-weight: 700; font-size: 13px; border-right: 1.5px solid #D1D5DB;
+  }
+  .input-wrap input {
+    flex: 1; border: none; outline: none; padding: 10px 12px;
+    font-size: 15px; font-family: var(--font-body); color: var(--text);
+    background: transparent; width: 100%; min-width: 0;
+  }
+  .input-suffix { padding: 10px 12px; color: var(--text-muted); font-size: 13px; white-space: nowrap; }
+
+  /* Slider */
+  .slider-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .slider-value { font-size: 14px; font-weight: 700; color: var(--gold); }
+  input[type="range"] {
+    width: 100%; height: 6px; border-radius: 3px; -webkit-appearance: none;
+    appearance: none; cursor: pointer; outline: none; background: var(--border-light);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--gold); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff;
+    background: var(--gold); box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer;
+  }
+
+  /* Result Cards */
+  .result { border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; }
+  .result-accent {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  }
+  .result-normal { background: var(--card-warm); border: 1px solid var(--border); }
+  .result-green { background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 100%); }
+  .result-label {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .result-value { font-family: var(--font-display); font-weight: 800; }
+  .result-sub { font-size: 12px; margin-top: 4px; }
+
+  /* Toggle button */
+  .toggle-btn {
+    width: 100%; padding: 12px; border: 1.5px solid var(--gold);
+    border-radius: var(--radius-sm); background: transparent;
+    color: var(--gold); cursor: pointer; font-family: var(--font-body);
+    font-weight: 700; font-size: 13px; margin-top: 10px; transition: all 0.25s;
+  }
+  .toggle-btn.open { background: var(--gold); color: #fff; }
+  .toggle-btn:active { transform: scale(0.98); }
+
+  /* Breakdown Card */
+  .breakdown-card {
+    background: var(--card-warm); border-radius: 12px; padding: 16px;
+    margin-bottom: 10px; border: 1px solid var(--border);
+  }
+  .breakdown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .breakdown-name { font-weight: 700; color: var(--navy); font-size: 14px; }
+  .breakdown-badge {
+    background: var(--gold); color: #fff; padding: 2px 8px;
+    border-radius: 12px; font-size: 11px; font-weight: 700;
+  }
+  .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; font-size: 12px; }
+  .breakdown-grid .label { color: var(--text-light); }
+  .breakdown-grid .val { text-align: right; font-weight: 600; color: var(--text); }
+  .breakdown-grid .val-gold { text-align: right; font-weight: 700; color: var(--gold); }
+  .breakdown-grid .val-navy { text-align: right; font-weight: 700; color: var(--navy); }
+
+  /* Reference Table */
+  .ref-box {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px; color: #fff;
+  }
+  .ref-label {
+    font-size: 12px; color: var(--gold); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .ref-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ref-table th {
+    padding: 8px 6px; text-align: left; color: var(--gold);
+    font-weight: 600; font-size: 11px; white-space: nowrap;
+    border-bottom: 1px solid var(--gold-border);
+  }
+  .ref-table td { padding: 6px; color: #D1D5DB; white-space: nowrap; }
+  .ref-table td:first-child { color: #E5E7EB; font-weight: 600; }
+  .ref-table td:last-child { color: #fff; font-weight: 700; }
+  .ref-table .total-row td { border-top: 2px solid var(--gold); padding: 8px 6px; color: var(--gold); font-weight: 800; }
+  .ref-note {
+    margin-top: 12px; padding: 10px 14px; background: rgba(200,150,62,0.1);
+    border-radius: var(--radius-xs); border-left: 3px solid var(--gold);
+    font-size: 11px; color: #D1D5DB;
+  }
+  .ref-note strong { color: var(--gold); }
+
+  /* Progress Bar */
+  .progress-box { background: #F3F4F6; border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px; border: 1px solid var(--border-light); }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+  .progress-track { height: 12px; background: var(--border-light); border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+  .progress-footer { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-muted); }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  @media (max-width: 400px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #fff; padding: 10px 20px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+  }
+  .toast.hidden { display: none; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 16px 20px 40px; font-size: 11px; color: var(--text-muted); }
+
+  /* Jenjang editable cards */
+  .jenjang-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .jenjang-card:focus-within { border-color: var(--gold-border); }
+  .jenjang-card-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+  }
+  .jenjang-card-name { font-weight: 700; color: #E5E7EB; font-size: 13px; }
+  .jenjang-card-total { font-size: 12px; font-weight: 700; color: var(--gold); }
+  .jenjang-fields { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 8px; }
+  @media (max-width: 400px) { .jenjang-fields { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .jenjang-fields > div:last-child { grid-column: 1 / -1; } }
+  .jenjang-field-label { font-size: 10px; color: rgba(255,255,255,0.45); margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .jenjang-input {
+    width: 100%; padding: 7px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.08); color: #fff; font-family: var(--font-body);
+    font-size: 13px; font-weight: 600; outline: none; transition: border-color 0.2s;
+  }
+  .jenjang-input:focus { border-color: var(--gold); background: rgba(200,150,62,0.08); }
+  .jenjang-input::placeholder { color: rgba(255,255,255,0.25); }
+  .jenjang-input.edited { border-color: var(--gold); background: rgba(200,150,62,0.12); }
+
+  /* PWA install banner */
+  .install-banner {
+    margin: 12px 16px 0; padding: 14px 18px; background: var(--card);
+    border-radius: var(--radius); border: 1.5px dashed var(--gold);
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    transition: all 0.2s; animation: fadeIn 0.4s ease;
+  }
+  .install-banner:active { transform: scale(0.98); }
+  .install-banner-text { flex: 1; }
+  .install-banner-title { font-weight: 700; font-size: 13px; color: var(--navy); }
+  .install-banner-sub { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .install-banner .install-btn {
+    padding: 8px 16px; background: var(--gold); color: #fff; border: none;
+    border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+    font-family: var(--font-body);
+  }
+
+  /* Strategy: mode toggle + budget rows */
+  .strat-mode { display:flex; gap:8px; margin-bottom:16px; }
+  .mode-btn { flex:1; padding:9px; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:#fff; color:var(--text-light); font-family:var(--font-body); font-weight:600; font-size:13px; cursor:pointer; transition:all .2s; }
+  .mode-btn.active { border-color:var(--gold); background:var(--gold-light); color:var(--gold); font-weight:700; }
+  .bud-row { display:grid; grid-template-columns:1fr 34px; grid-template-areas:"name name" "amt del"; column-gap:8px; row-gap:6px; margin-bottom:12px; align-items:center; }
+  .bud-row .bud-name { grid-area:name; width:100%; }
+  .bud-row .input-wrap { grid-area:amt; overflow:hidden; }
+  .bud-row .bud-del { grid-area:del; justify-self:center; }
+  .bud-name { border:1.5px solid #D1D5DB; border-radius:var(--radius-sm); padding:9px 10px; font-family:var(--font-body); font-size:13px; color:var(--text); outline:none; background:#fff; min-width:0; }
+  .bud-name:focus { border-color:var(--gold); }
+  .bud-amt { font-size:14px; }
+  .bud-del { border:none; background:transparent; color:var(--text-muted); font-size:20px; cursor:pointer; padding:0; line-height:1; }
+  .bud-del:active { transform:scale(.9); }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast hidden">✅ Link berhasil disalin!</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-label">Financial Planner</div>
+  <h1>Kalkulator Perencanaan<br>Keuangan</h1>
+  <p>Dana Pendidikan · Pensiun · Dana Darurat</p>
+  <button class="share-btn" onclick="shareApp()">📤 Bagikan ke Teman</button>
+</div>
+
+<!-- Install Banner (shown when PWA installable) -->
+<div id="installBanner" class="install-banner" style="display:none;" onclick="installPWA()">
+  <span style="font-size:28px">📲</span>
+  <div class="install-banner-text">
+    <div class="install-banner-title">Install sebagai Aplikasi</div>
+    <div class="install-banner-sub">Akses cepat tanpa buka browser</div>
+  </div>
+  <button class="install-btn">Install</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="education" onclick="switchTab('education')">
+    <span class="tab-icon">🎓</span> Pendidikan
+  </button>
+  <button class="tab-btn" data-tab="retirement" onclick="switchTab('retirement')">
+    <span class="tab-icon">🏖️</span> Pensiun
+  </button>
+  <button class="tab-btn" data-tab="emergency" onclick="switchTab('emergency')">
+    <span class="tab-icon">🛡️</span> Darurat
+  </button>
+  <button class="tab-btn" data-tab="strategy" onclick="switchTab('strategy')">
+    <span class="tab-icon">🧭</span> Strategi
+  </button>
+</div>
+
+<!-- ═══════ EDUCATION TAB ═══════ -->
+<div class="content" id="tab-education">
+  <!-- Editable per-jenjang biaya -->
+  <div class="ref-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px">
+      <div class="ref-label" style="margin-bottom:0">📊 Biaya Sekolah per Jenjang</div>
+      <button onclick="resetBiaya()" style="background:rgba(200,150,62,0.2);border:1px solid rgba(200,150,62,0.4);color:var(--gold);padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">↺ Reset ke Referensi</button>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:14px">Sesuaikan biaya sekolah anakmu. Default: sekolah swasta Bandung 2024–2025.</div>
+
+    <div id="jenjangInputs"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:2px solid var(--gold-border)">
+      <span style="font-size:13px;font-weight:700;color:var(--gold)">TOTAL (tanpa inflasi)</span>
+      <span style="font-size:14px;font-weight:800;color:var(--gold)" id="eduTotalNoInf">Rp 550.000.000</span>
+    </div>
+    <div class="ref-note" id="refNote">
+      ⚠️ Belum termasuk inflasi. Dengan inflasi 10%/tahun, total bisa <strong>Rp 2,2M+</strong>
+    </div>
+  </div>
+
+  <h3 class="section-title">⚙️ Parameter Perhitungan</h3>
+
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Usia Anak Saat Ini</label>
+      <span class="slider-value" id="eduUsiaVal">0 tahun</span>
+    </div>
+    <input type="range" id="eduUsia" min="0" max="18" step="1" value="0" oninput="calcEducation()">
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Inflasi Biaya Pendidikan</label>
+      <span class="slider-value" id="eduInflasiVal">10%</span>
+    </div>
+    <input type="range" id="eduInflasi" min="5" max="20" step="1" value="10" oninput="calcEducation()">
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Target Return Investasi</label>
+      <span class="slider-value" id="eduReturnVal">10%</span>
+    </div>
+    <input type="range" id="eduReturn" min="4" max="20" step="1" value="10" oninput="calcEducation()">
+  </div>
+  <div class="field">
+    <label class="field-label">Investasi Awal (Lump Sum)</label>
+    <div class="input-wrap">
+      <span class="input-prefix">Rp</span>
+      <input type="text" id="eduLumpsum" value="10.000.000" oninput="calcEducation()">
+    </div>
+  </div>
+
+  <div style="margin-top:20px">
+    <h3 class="section-title">💰 Hasil Perhitungan</h3>
+    <div id="eduResults"></div>
+    <button class="toggle-btn" id="eduToggle" onclick="toggleBreakdown()">Lihat Rincian per Jenjang ▾</button>
+    <div id="eduBreakdown" style="display:none; margin-top:14px;"></div>
+  </div>
+</div>
+
+<!-- ═══════ RETIREMENT TAB ═══════ -->
+<div class="content" id="tab-retirement" style="display:none;">
+  <h3 class="section-title">⚙️ Parameter</h3>
+  <div class="grid-2">
+    <div class="field">
+      <div class="slider-header">
+        <label class="field-label">Usia Sekarang</label>
+        <span class="slider-value" id="retUsiaVal">30 th</span>
+      </div>
+      <input type="range" id="retUsia" min="20" max="55" step="1" value="30" oninput="calcRetirement()">
+    </div>
+    <div class="field">
+      <div class="slider-header">
+        <label class="field-label">Usia Pensiun</label>
+        <span class="slider-value" id="retPensiunVal">55 th</span>
+      </div>
+      <input type="range" id="retPensiun" min="40" max="65" step="1" value="55" oninput="calcRetirement()">
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Pengeluaran Bulanan Saat Ini</label>
+    <div class="input-wrap">
+      <span class="input-prefix">Rp</span>
+      <input type="text" id="retPengeluaran" value="10.000.000" oninput="calcRetirement()">
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Tabungan/Investasi Saat Ini</label>
+    <div class="input-wrap">
+      <span class="input-prefix">Rp</span>
+      <input type="text" id="retTabungan" value="50.000.000" oninput="calcRetirement()">
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="field">
+      <div class="slider-header">
+        <label class="field-label">Inflasi</label>
+        <span class="slider-value" id="retInflasiVal">6%</span>
+      </div>
+      <input type="range" id="retInflasi" min="3" max="15" step="1" value="6" oninput="calcRetirement()">
+    </div>
+    <div class="field">
+      <div class="slider-header">
+        <label class="field-label">Return Investasi</label>
+        <span class="slider-value" id="retReturnVal">10%</span>
+      </div>
+      <input type="range" id="retReturn" min="4" max="20" step="1" value="10" oninput="calcRetirement()">
+    </div>
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Harapan Hidup</label>
+      <span class="slider-value" id="retHidupVal">75 th</span>
+    </div>
+    <input type="range" id="retHidup" min="60" max="90" step="1" value="75" oninput="calcRetirement()">
+  </div>
+
+  <div style="margin-top:20px">
+    <h3 class="section-title">💰 Hasil Perhitungan</h3>
+    <div id="retResults"></div>
+  </div>
+</div>
+
+<!-- ═══════ EMERGENCY TAB ═══════ -->
+<div class="content" id="tab-emergency" style="display:none;">
+  <h3 class="section-title">⚙️ Parameter</h3>
+  <div class="field">
+    <label class="field-label">Pengeluaran Bulanan</label>
+    <div class="input-wrap">
+      <span class="input-prefix">Rp</span>
+      <input type="text" id="emPengeluaran" value="10.000.000" oninput="calcEmergency()">
+    </div>
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Target Dana Darurat</label>
+      <span class="slider-value" id="emBulanVal">6 bulan pengeluaran</span>
+    </div>
+    <input type="range" id="emBulan" min="3" max="12" step="1" value="6" oninput="calcEmergency()">
+  </div>
+  <div class="field">
+    <label class="field-label">Dana Darurat Saat Ini</label>
+    <div class="input-wrap">
+      <span class="input-prefix">Rp</span>
+      <input type="text" id="emDana" value="5.000.000" oninput="calcEmergency()">
+    </div>
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Target Waktu Terkumpul</label>
+      <span class="slider-value" id="emTargetVal">12 bulan</span>
+    </div>
+    <input type="range" id="emTarget" min="3" max="36" step="1" value="12" oninput="calcEmergency()">
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label class="field-label">Return Tabungan/Deposito</label>
+      <span class="slider-value" id="emReturnVal">5%</span>
+    </div>
+    <input type="range" id="emReturn" min="1" max="10" step="0.5" value="5" oninput="calcEmergency()">
+  </div>
+
+  <div style="margin-top:20px">
+    <h3 class="section-title">💰 Status Dana Darurat</h3>
+    <div id="emResults"></div>
+  </div>
+</div>
+
+<!-- ═══════ STRATEGY TAB ═══════ -->
+<div class="content" id="tab-strategy" style="display:none;">
+  <h3 class="section-title">🧭 Atur Prioritas</h3>
+  <p style="font-size:12px;color:var(--text-light);margin:-8px 0 14px;line-height:1.5">
+    Target & kebutuhan bulanan diambil otomatis dari tab <b>Pendidikan</b>, <b>Pensiun</b>, dan <b>Dana Darurat</b>. Ubah asumsi di sana, strategi ini ikut menyesuaikan.
+  </p>
+
+  <div class="strat-mode">
+    <button id="modeBudget" class="mode-btn active" onclick="setMode('budget')">📋 Dari budget</button>
+    <button id="modeManual" class="mode-btn" onclick="setMode('manual')">✏️ Input manual</button>
+  </div>
+
+  <div id="budgetBox">
+    <div class="field">
+      <label class="field-label">Penghasilan bulanan</label>
+      <div class="input-wrap"><span class="input-prefix">Rp</span><input type="text" id="budIncome" value="8.000.000" oninput="onBudgetChange()"></div>
+    </div>
+    <label class="field-label">Pos pengeluaran</label>
+    <div id="budRows"></div>
+    <button class="toggle-btn" style="margin-top:2px;margin-bottom:14px" onclick="addBudgetRow()">+ Tambah pos pengeluaran</button>
+    <div class="field">
+      <label class="field-label">Tabungan rutin yang sudah kamu sisihkan <span style="color:var(--text-muted);font-weight:400">(opsional)</span></label>
+      <div class="input-wrap"><span class="input-prefix">Rp</span><input type="text" id="budSaved" value="0" oninput="onBudgetChange()"></div>
+    </div>
+    <div id="budResult" style="margin-bottom:6px"></div>
+  </div>
+
+  <div id="manualBox" style="display:none">
+    <div class="field">
+      <label class="field-label">Uang yang bisa ditabung tiap bulan</label>
+      <div class="input-wrap"><span class="input-prefix">Rp</span><input type="text" id="stratSurplus" value="3.000.000" oninput="onSurplusChange()"></div>
+    </div>
+  </div>
+
+  <h3 class="section-title" style="margin-top:20px;font-size:16px">Bagi ke tujuan</h3>
+  <div id="stratAlloc"></div>
+  <div id="stratSisa" style="font-size:12px;margin:4px 0 4px;text-align:right"></div>
+  <button class="toggle-btn" onclick="autoAllocate()">✨ Saran otomatis (amankan darurat dulu)</button>
+  <div id="stratMerdeka" class="result result-accent" style="margin-top:18px"></div>
+  <div id="stratAha" style="margin-top:10px;padding:12px 14px;background:var(--gold-light);border-left:3px solid var(--gold);border-radius:var(--radius-xs);font-size:12px;color:var(--text-mid);line-height:1.55"></div>
+
+
+  <div style="margin-top:22px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 class="section-title" style="font-size:15px;margin:0">📁 Setup Input Tersimpan</h3>
+      <button onclick="promptSaveSetup()" style="padding:6px 14px;background:var(--navy);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body)">+ Simpan Setup</button>
+    </div>
+    <div style="margin-bottom:8px;padding:8px 12px;background:var(--gold-light);border-left:3px solid var(--gold);border-radius:var(--radius-xs);font-size:11px;color:var(--text-mid);line-height:1.5">
+      💡 Simpan konfigurasi inputan manual (pos pengeluaran, surplus, alokasi) sebagai preset. Bisa dipanggil lagi kapan saja, dan setup terakhir otomatis diingat walau browser ditutup.
+    </div>
+    <div id="setupLog"></div>
+  </div>
+
+  <h3 class="section-title" style="margin-top:26px">📈 Lacak Progres</h3>
+  <p style="font-size:12px;color:var(--text-light);margin:-8px 0 16px;line-height:1.5">
+    Saldo di sini tersambung dua arah dengan tab kalkulator — ubah di sini, berubah di sana. Catat tiap bulan dan lihat garismu bergerak.
+  </p>
+  <div id="stratTrack"></div>
+  <button class="toggle-btn open" onclick="saveSnapshot()">💾 Simpan saldo bulan ini</button>
+  <div style="margin-top:10px;padding:9px 12px;background:#F3F4F6;border-radius:var(--radius-xs);font-size:11px;color:var(--text-light);line-height:1.5">
+    🔒 Datamu disimpan <b>hanya di perangkat & browser ini</b> (localStorage di HP/komputermu). Tidak dikirim ke server mana pun, dan tidak sinkron antar-perangkat. Menghapus data browser atau memakai mode incognito akan menghilangkannya.
+  </div>
+  <div id="stratHistory"></div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  ⚠️ Kalkulator ini hanya untuk simulasi. Konsultasikan dengan perencana keuangan profesional.<br>
+  <span style="margin-top:4px;display:inline-block">Sumber data: Biaya sekolah swasta di Bandung 2024–2025</span>
+</div>
+
+<script>
+// ─── Utilities ─────────────────────────────────────────
+function fmtRp(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtRpShort(n) {
+  if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(1) + 'T';
+  if (n >= 1e9) return 'Rp ' + (n/1e9).toFixed(1) + 'M';
+  if (n >= 1e6) return 'Rp ' + (n/1e6).toFixed(1) + 'jt';
+  return fmtRp(n);
+}
+function parseRp(s) { return parseInt(String(s).replace(/[^0-9]/g,''),10) || 0; }
+function formatInputRp(el) {
+  const v = parseRp(el.value);
+  el.value = v ? v.toLocaleString('id-ID') : '';
+}
+function updateSliderBg(el) {
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.background = `linear-gradient(to right, var(--gold) 0%, var(--gold) ${pct}%, var(--border-light) ${pct}%, var(--border-light) 100%)`;
+}
+
+// Auto-format all currency inputs & update slider backgrounds
+document.querySelectorAll('input[type="range"]').forEach(el => {
+  updateSliderBg(el);
+  el.addEventListener('input', () => updateSliderBg(el));
+});
+
+// ─── Tab Switching ──────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  ['education','retirement','emergency','strategy'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === tab ? 'block' : 'none';
+  });
+  // Re-animate
+  const el = document.getElementById('tab-'+tab);
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'slideUp 0.35s ease';
+  if (tab === 'strategy') renderStrategy();
+}
+
+// ─── Share ───────────────────────────────────────────────
+async function shareApp() {
+  const text = '🎓 Kalkulator Perencanaan Keuangan — Hitung dana pendidikan anak, pensiun, dan dana darurat!';
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Kalkulator Keuangan', text, url: location.href }); } catch(e) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      const toast = document.getElementById('toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2500);
+    } catch(e) {}
+  }
+}
+
+// ─── PWA Install ────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+async function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if (result.outcome === 'accepted') document.getElementById('installBanner').style.display = 'none';
+  deferredPrompt = null;
+}
+
+// ─── Education Data ─────────────────────────────────────
+const JENJANG_DEFAULT = [
+  { id:'tk',  name:'TK (A-B)',     masuk:10000000, spp:1000000,  thn:2 },
+  { id:'sd',  name:'SD (1-6)',     masuk:20000000, spp:1500000,  thn:6 },
+  { id:'smp', name:'SMP (7-9)',    masuk:25000000, spp:1800000,  thn:3 },
+  { id:'sma', name:'SMA (10-12)',  masuk:30000000, spp:2200000,  thn:3 },
+  { id:'kul', name:'Kuliah',       masuk:45000000, spp:3000000,  thn:4 },
+];
+const USIA_MAP = { 'tk':4, 'sd':7, 'smp':13, 'sma':16, 'kul':19 };
+let breakdownOpen = false;
+
+// Render editable jenjang input cards
+function renderJenjangInputs() {
+  const container = document.getElementById('jenjangInputs');
+  let html = '';
+  JENJANG_DEFAULT.forEach(j => {
+    const totalDef = j.masuk + j.spp * 12 * j.thn;
+    html += `
+      <div class="jenjang-card" id="jcard-${j.id}">
+        <div class="jenjang-card-header">
+          <span class="jenjang-card-name">${j.name}</span>
+          <span class="jenjang-card-total" id="jtotal-${j.id}">${fmtRpShort(totalDef)}</span>
+        </div>
+        <div class="jenjang-fields">
+          <div>
+            <div class="jenjang-field-label">Uang Masuk</div>
+            <input class="jenjang-input" id="jmasuk-${j.id}" type="text"
+              value="${j.masuk.toLocaleString('id-ID')}"
+              placeholder="${fmtRpShort(j.masuk)}"
+              oninput="onJenjangEdit(this,'${j.id}','masuk',${j.masuk})"
+              onfocus="this.select()">
+          </div>
+          <div>
+            <div class="jenjang-field-label">SPP / Bulan</div>
+            <input class="jenjang-input" id="jspp-${j.id}" type="text"
+              value="${j.spp.toLocaleString('id-ID')}"
+              placeholder="${fmtRpShort(j.spp)}"
+              oninput="onJenjangEdit(this,'${j.id}','spp',${j.spp})"
+              onfocus="this.select()">
+          </div>
+          <div>
+            <div class="jenjang-field-label">Lama (thn)</div>
+            <input class="jenjang-input" id="jthn-${j.id}" type="number"
+              value="${j.thn}" min="1" max="10"
+              oninput="onJenjangEdit(this,'${j.id}','thn',${j.thn})"
+              onfocus="this.select()">
+          </div>
+        </div>
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function onJenjangEdit(el, id, field, defaultVal) {
+  if (field === 'thn') {
+    // for tahun, just recalc
+  } else {
+    const v = parseRp(el.value);
+    el.value = v ? v.toLocaleString('id-ID') : '';
+    el.classList.toggle('edited', v !== defaultVal && v > 0);
+  }
+  // Update per-card total
+  updateJenjangTotal(id);
+  calcEducation();
+}
+
+function updateJenjangTotal(id) {
+  const masuk = parseRp(document.getElementById('jmasuk-' + id).value);
+  const spp = parseRp(document.getElementById('jspp-' + id).value);
+  const thn = parseInt(document.getElementById('jthn-' + id).value) || 0;
+  const total = masuk + spp * 12 * thn;
+  document.getElementById('jtotal-' + id).textContent = fmtRpShort(total);
+}
+
+function getJenjangValues() {
+  return JENJANG_DEFAULT.map(j => {
+    const masukEl = document.getElementById('jmasuk-' + j.id);
+    const sppEl = document.getElementById('jspp-' + j.id);
+    const thnEl = document.getElementById('jthn-' + j.id);
+    const masuk = masukEl ? (parseRp(masukEl.value) || j.masuk) : j.masuk;
+    const spp = sppEl ? (parseRp(sppEl.value) || j.spp) : j.spp;
+    const thn = thnEl ? (parseInt(thnEl.value) || j.thn) : j.thn;
+    return { id: j.id, name: j.name, masuk, spp, thn };
+  });
+}
+
+function resetBiaya() {
+  JENJANG_DEFAULT.forEach(j => {
+    const masukEl = document.getElementById('jmasuk-' + j.id);
+    const sppEl = document.getElementById('jspp-' + j.id);
+    const thnEl = document.getElementById('jthn-' + j.id);
+    if (masukEl) { masukEl.value = j.masuk.toLocaleString('id-ID'); masukEl.classList.remove('edited'); }
+    if (sppEl) { sppEl.value = j.spp.toLocaleString('id-ID'); sppEl.classList.remove('edited'); }
+    if (thnEl) { thnEl.value = j.thn; }
+    updateJenjangTotal(j.id);
+  });
+  calcEducation();
+}
+
+function calcEducation() {
+  const usia = +document.getElementById('eduUsia').value;
+  const inflasi = +document.getElementById('eduInflasi').value;
+  const ret = +document.getElementById('eduReturn').value;
+  const lump = parseRp(document.getElementById('eduLumpsum').value);
+  formatInputRp(document.getElementById('eduLumpsum'));
+  
+  document.getElementById('eduUsiaVal').textContent = usia + ' tahun';
+  document.getElementById('eduInflasiVal').textContent = inflasi + '%';
+  document.getElementById('eduReturnVal').textContent = ret + '%';
+
+  const jenjangValues = getJenjangValues();
+  let totalNoInf = 0, totalInf = 0, totalMonthly = 0;
+  const rows = [];
+
+  jenjangValues.forEach(j => {
+    const usiaMulai = USIA_MAP[j.id];
+    const tahunMenuju = Math.max(0, usiaMulai - usia);
+    const biayaNoInf = j.masuk + j.spp * 12 * j.thn;
+    const biayaInf = biayaNoInf * Math.pow(1 + inflasi/100, tahunMenuju);
+    
+    let investBulanan = 0;
+    if (tahunMenuju > 0) {
+      const r = ret / 100 / 12;
+      const n = tahunMenuju * 12;
+      const fvAwal = lump * Math.pow(1 + r, n);
+      const sisa = Math.max(0, biayaInf - fvAwal);
+      investBulanan = r > 0 && n > 0 ? sisa * r / (Math.pow(1 + r, n) - 1) : (n > 0 ? sisa / n : sisa);
+    }
+
+    totalNoInf += biayaNoInf;
+    totalInf += biayaInf;
+    totalMonthly += Math.max(0, investBulanan);
+    rows.push({ ...j, tahunMenuju, biayaNoInf, biayaInf, investBulanan: Math.max(0, investBulanan) });
+  });
+
+  const pctUp = totalNoInf > 0 ? ((totalInf / totalNoInf - 1) * 100).toFixed(0) : 0;
+
+  document.getElementById('eduTotalNoInf').textContent = fmtRp(totalNoInf);
+  document.getElementById('refNote').innerHTML =
+    `⚠️ Belum termasuk inflasi. Dengan inflasi ${inflasi}%/tahun, total bisa <strong>${fmtRpShort(totalInf)}</strong>`;
+
+  STRAT.edu = { label:'Pendidikan', icon:'🎓', target: totalInf, current: lump, monthly: totalMonthly, ret: ret };
+  syncTrackFromCalc('edu', lump);
+  document.getElementById('eduResults').innerHTML = `
+    <div class="result result-accent">
+      <div class="result-label" style="color:var(--gold)">Total Biaya Pendidikan (dengan Inflasi)</div>
+      <div class="result-value" style="font-size:22px;color:#fff">${fmtRp(totalInf)}</div>
+      <div class="result-sub" style="color:rgba(255,255,255,0.6)">Naik ${pctUp}% dari harga hari ini (${fmtRp(totalNoInf)})</div>
+    </div>
+    <div class="result result-normal">
+      <div class="result-label" style="color:var(--text-muted)">Total Investasi Bulanan Dibutuhkan</div>
+      <div class="result-value" style="font-size:18px;color:var(--text)">${fmtRp(totalMonthly)}</div>
+      <div class="result-sub" style="color:var(--text-muted)">Gabungan semua jenjang pendidikan</div>
+    </div>
+  `;
+
+  // Breakdown
+  let html = '';
+  rows.forEach(r => {
+    html += `
+      <div class="breakdown-card">
+        <div class="breakdown-header">
+          <span class="breakdown-name">${r.name}</span>
+          <span class="breakdown-badge">${r.tahunMenuju} tahun lagi</span>
+        </div>
+        <div class="breakdown-grid">
+          <span class="label">Uang Masuk:</span><span class="val">${fmtRp(r.masuk)}</span>
+          <span class="label">SPP/bulan × ${r.thn} thn:</span><span class="val">${fmtRp(r.spp)} × ${r.thn*12} bln</span>
+          <span class="label">Biaya (tanpa inflasi):</span><span class="val">${fmtRp(r.biayaNoInf)}</span>
+          <span class="label">Biaya (dengan inflasi):</span><span class="val-gold">${fmtRp(r.biayaInf)}</span>
+          <span class="label">Investasi bulanan:</span><span class="val-navy">${fmtRp(r.investBulanan)}</span>
+        </div>
+      </div>`;
+  });
+  document.getElementById('eduBreakdown').innerHTML = html;
+}
+
+function toggleBreakdown() {
+  breakdownOpen = !breakdownOpen;
+  const btn = document.getElementById('eduToggle');
+  const bd = document.getElementById('eduBreakdown');
+  bd.style.display = breakdownOpen ? 'block' : 'none';
+  btn.textContent = breakdownOpen ? 'Sembunyikan Rincian ▴' : 'Lihat Rincian per Jenjang ▾';
+  btn.classList.toggle('open', breakdownOpen);
+}
+
+// ─── Retirement ─────────────────────────────────────────
+function calcRetirement() {
+  const usia = +document.getElementById('retUsia').value;
+  const pensiun = +document.getElementById('retPensiun').value;
+  const pengeluaran = parseRp(document.getElementById('retPengeluaran').value);
+  const tabungan = parseRp(document.getElementById('retTabungan').value);
+  const inflasi = +document.getElementById('retInflasi').value;
+  const ret = +document.getElementById('retReturn').value;
+  const hidup = +document.getElementById('retHidup').value;
+  
+  formatInputRp(document.getElementById('retPengeluaran'));
+  formatInputRp(document.getElementById('retTabungan'));
+
+  document.getElementById('retUsiaVal').textContent = usia + ' th';
+  document.getElementById('retPensiunVal').textContent = pensiun + ' th';
+  document.getElementById('retInflasiVal').textContent = inflasi + '%';
+  document.getElementById('retReturnVal').textContent = ret + '%';
+  document.getElementById('retHidupVal').textContent = hidup + ' th';
+
+  const tahunMenuju = Math.max(0, pensiun - usia);
+  const tahunPensiun = Math.max(1, hidup - pensiun);
+  const pengeluaranPensiun = pengeluaran * Math.pow(1 + inflasi/100, tahunMenuju);
+  const tahunanPensiun = pengeluaranPensiun * 12;
+
+  const realReturn = ((1 + ret/100) / (1 + inflasi/100)) - 1;
+  let target;
+  if (realReturn > 0.001) {
+    target = tahunanPensiun * (1 - Math.pow(1 + realReturn, -tahunPensiun)) / realReturn;
+  } else {
+    target = tahunanPensiun * tahunPensiun;
+  }
+
+  const r = ret / 100 / 12;
+  const n = tahunMenuju * 12;
+  const fvTab = tabungan * Math.pow(1 + r, n);
+  const sisa = Math.max(0, target - fvTab);
+  let investBulanan = 0;
+  if (r > 0 && n > 0) investBulanan = sisa * r / (Math.pow(1 + r, n) - 1);
+  else if (n > 0) investBulanan = sisa / n;
+
+  STRAT.ret = { label:'Pensiun', icon:'🏖️', target: target, current: tabungan, monthly: investBulanan, ret: ret };
+  syncTrackFromCalc('ret', tabungan);
+  document.getElementById('retResults').innerHTML = `
+    <div class="result result-accent">
+      <div class="result-label" style="color:var(--gold)">Target Dana Pensiun</div>
+      <div class="result-value" style="font-size:22px;color:#fff">${fmtRp(target)}</div>
+      <div class="result-sub" style="color:rgba(255,255,255,0.6)">Untuk hidup ${tahunPensiun} tahun sejak pensiun</div>
+    </div>
+    <div class="result result-normal">
+      <div class="result-label" style="color:var(--text-muted)">Pengeluaran Bulanan Saat Pensiun</div>
+      <div class="result-value" style="font-size:18px">${fmtRp(pengeluaranPensiun)}</div>
+      <div class="result-sub" style="color:var(--text-muted)">${fmtRp(pengeluaran)} hari ini + inflasi ${inflasi}% selama ${tahunMenuju} tahun</div>
+    </div>
+    <div class="result result-normal">
+      <div class="result-label" style="color:var(--text-muted)">Nilai Tabungan Saat Pensiun</div>
+      <div class="result-value" style="font-size:18px">${fmtRp(fvTab)}</div>
+      <div class="result-sub" style="color:var(--text-muted)">Dari ${fmtRp(tabungan)} berkembang selama ${tahunMenuju} tahun</div>
+    </div>
+    <div class="result result-normal">
+      <div class="result-label" style="color:var(--text-muted)">Kekurangan Dana</div>
+      <div class="result-value" style="font-size:18px">${fmtRp(sisa)}</div>
+    </div>
+    <div class="result result-green">
+      <div class="result-label" style="color:var(--green-light)">Investasi Bulanan yang Dibutuhkan</div>
+      <div class="result-value" style="font-size:24px;color:#fff">${fmtRp(investBulanan)}</div>
+      <div class="result-sub" style="color:rgba(255,255,255,0.6)">per bulan selama ${tahunMenuju} tahun ke depan</div>
+    </div>
+  `;
+}
+
+// ─── Emergency Fund ─────────────────────────────────────
+function calcEmergency() {
+  const pengeluaran = parseRp(document.getElementById('emPengeluaran').value);
+  const bulan = +document.getElementById('emBulan').value;
+  const dana = parseRp(document.getElementById('emDana').value);
+  const targetBulan = +document.getElementById('emTarget').value;
+  const ret = +document.getElementById('emReturn').value;
+
+  formatInputRp(document.getElementById('emPengeluaran'));
+  formatInputRp(document.getElementById('emDana'));
+
+  document.getElementById('emBulanVal').textContent = bulan + ' bulan pengeluaran';
+  document.getElementById('emTargetVal').textContent = targetBulan + ' bulan';
+  document.getElementById('emReturnVal').textContent = ret + '%';
+
+  const target = pengeluaran * bulan;
+  const kekurangan = Math.max(0, target - dana);
+  const pct = target > 0 ? (dana / target * 100) : 0;
+
+  const r = ret / 100 / 12;
+  const n = targetBulan;
+  let nabung = 0;
+  if (r > 0 && n > 0) {
+    const fvDana = dana * Math.pow(1 + r, n);
+    const sisa = Math.max(0, target - fvDana);
+    nabung = sisa * r / (Math.pow(1 + r, n) - 1);
+  } else if (n > 0) {
+    nabung = kekurangan / n;
+  }
+
+  const barW = Math.min(100, pct);
+  let statusColor, statusText;
+  if (pct >= 100) { statusColor = 'var(--green-accent)'; statusText = '✅ Dana darurat tercukupi!'; }
+  else if (pct >= 50) { statusColor = 'var(--orange)'; statusText = '⚠️ Hampir mencukupi'; }
+  else { statusColor = 'var(--red)'; statusText = '🚨 Perlu ditambah'; }
+
+  let kekuranganHtml = kekurangan > 0 ? `
+    <div class="result result-normal">
+      <div class="result-label" style="color:var(--text-muted)">Kekurangan</div>
+      <div class="result-value" style="font-size:18px">${fmtRp(kekurangan)}</div>
+    </div>
+    <div class="result result-green">
+      <div class="result-label" style="color:var(--green-light)">Nabung Bulanan yang Dibutuhkan</div>
+      <div class="result-value" style="font-size:24px;color:#fff">${fmtRp(nabung)}</div>
+      <div class="result-sub" style="color:rgba(255,255,255,0.6)">selama ${targetBulan} bulan ke depan</div>
+    </div>
+  ` : '';
+
+  STRAT.em = { label:'Dana Darurat', icon:'🛡️', target: target, current: dana, monthly: nabung, ret: ret };
+  syncTrackFromCalc('em', dana);
+  document.getElementById('emResults').innerHTML = `
+    <div class="progress-box">
+      <div class="progress-header">
+        <span style="color:var(--text-mid)">${statusText}</span>
+        <span style="color:${statusColor}">${pct.toFixed(0)}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${barW}%;background:${statusColor}"></div>
+      </div>
+      <div class="progress-footer">
+        <span>${fmtRp(dana)}</span>
+        <span>Target: ${fmtRp(target)}</span>
+      </div>
+    </div>
+    <div class="result result-accent">
+      <div class="result-label" style="color:var(--gold)">Target Dana Darurat</div>
+      <div class="result-value" style="font-size:22px;color:#fff">${fmtRp(target)}</div>
+      <div class="result-sub" style="color:rgba(255,255,255,0.6)">${bulan} bulan × ${fmtRp(pengeluaran)}</div>
+    </div>
+    ${kekuranganHtml}
+  `;
+}
+
+// ─── Strategy / Trade-off Engine ────────────────────────
+const STRAT = {};
+const STRAT_KEY = 'kalk_progress_v1';
+const STRAT_ORDER = ['em','edu','ret'];
+const BAL_LINK = { em:'emDana', edu:'eduLumpsum', ret:'retTabungan' };
+const CALC_FN = { em:calcEmergency, edu:calcEducation, ret:calcRetirement };
+const BulanID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+let stratMode = 'budget';
+const BUDGET_DEFAULT = [
+  ['Sewa / cicilan rumah', 2000000],
+  ['Makan & belanja', 1500000],
+  ['Transport', 500000],
+  ['Listrik, air, internet', 500000],
+  ['Cicilan lain', 0],
+  ['Hiburan & lain-lain', 500000]
+];
+
+// ─── Setup Persistence & Log ────────────────────────────
+const SETUP_KEY = 'kalk_setup_v1';
+const SETUP_LOG_KEY = 'kalk_setup_log_v1';
+let pendingAllocRestore = null;
+
+function collectSetup(){
+  const rows=[];
+  document.querySelectorAll('#budRows .bud-row').forEach(row=>{
+    const nameEl=row.querySelector('.bud-name');
+    const amtEl=row.querySelector('.bud-amt');
+    rows.push({name:nameEl?nameEl.value:'',amt:parseRp(amtEl?amtEl.value:'0')});
+  });
+  const allocs={};
+  STRAT_ORDER.forEach(k=>{ const el=document.getElementById('alloc-'+k); allocs[k]=el?+el.value:0; });
+  return {
+    mode:stratMode,
+    income:parseRp(document.getElementById('budIncome')?.value||'0'),
+    saved:parseRp(document.getElementById('budSaved')?.value||'0'),
+    rows,
+    surplus:parseRp(document.getElementById('stratSurplus')?.value||'0'),
+    allocs,
+    ts:new Date().toISOString()
+  };
+}
+
+function autoSaveSetup(){ try{ localStorage.setItem(SETUP_KEY,JSON.stringify(collectSetup())); }catch(e){} }
+
+function restoreSetup(data){
+  if(!data) return;
+  stratMode=data.mode||'budget';
+  document.getElementById('modeBudget').classList.toggle('active',stratMode==='budget');
+  document.getElementById('modeManual').classList.toggle('active',stratMode==='manual');
+  document.getElementById('budgetBox').style.display=stratMode==='budget'?'block':'none';
+  document.getElementById('manualBox').style.display=stratMode==='manual'?'block':'none';
+  if(stratMode==='budget'){
+    const incEl=document.getElementById('budIncome');
+    if(incEl&&data.income!==undefined) incEl.value=data.income.toLocaleString('id-ID');
+    const savedEl=document.getElementById('budSaved');
+    if(savedEl&&data.saved!==undefined) savedEl.value=data.saved.toLocaleString('id-ID');
+    if(data.rows&&data.rows.length){
+      const box=document.getElementById('budRows');
+      box.innerHTML=''; box.removeAttribute('data-built');
+      data.rows.forEach((r,i)=>{ box.insertAdjacentHTML('beforeend',budRowHTML(i,r.name,r.amt)); });
+      box.dataset.built='1'; box.dataset.n=data.rows.length;
+    }
+    onBudgetChange();
+  } else {
+    const surpEl=document.getElementById('stratSurplus');
+    if(surpEl&&data.surplus!==undefined) surpEl.value=data.surplus.toLocaleString('id-ID');
+    onSurplusChange();
+  }
+  if(data.allocs){
+    const allocEl=document.getElementById('stratAlloc');
+    if(allocEl&&allocEl.dataset.built){
+      const surplus=parseSurplus();
+      STRAT_ORDER.forEach(k=>{
+        const el=document.getElementById('alloc-'+k);
+        if(el&&data.allocs[k]!==undefined){ el.max=Math.max(surplus,1000000); el.value=data.allocs[k]; updateSliderBg(el); }
+      });
+      renderStrategy();
+    } else { pendingAllocRestore=data.allocs; }
+  }
+}
+
+function loadSetupLog(){ try{ return JSON.parse(localStorage.getItem(SETUP_LOG_KEY))||[]; }catch(e){ return []; } }
+function saveSetupLog(a){ try{ localStorage.setItem(SETUP_LOG_KEY,JSON.stringify(a)); }catch(e){} }
+
+function promptSaveSetup(){
+  const name=prompt('Nama setup ini (mis. "Budget Juni 2026"):');
+  if(!name||!name.trim()) return;
+  const setup=collectSetup(); setup.name=name.trim(); setup.id=Date.now();
+  const log=loadSetupLog(); log.unshift(setup);
+  if(log.length>10) log.length=10;
+  saveSetupLog(log);
+  const toast=document.getElementById('toast');
+  toast.textContent='\u2713 Setup "'+setup.name+'" tersimpan';
+  toast.classList.remove('hidden');
+  setTimeout(()=>toast.classList.add('hidden'),2200);
+  renderSetupLog();
+}
+
+function recallSetup(id){
+  const setup=loadSetupLog().find(s=>s.id===id);
+  if(!setup) return;
+  restoreSetup(setup);
+  const toast=document.getElementById('toast');
+  toast.textContent='\u2713 Setup "'+setup.name+'" dipakai';
+  toast.classList.remove('hidden');
+  setTimeout(()=>toast.classList.add('hidden'),2200);
+}
+
+function deleteSetupLog(id){
+  if(typeof confirm==='function'&&!confirm('Hapus setup ini?')) return;
+  saveSetupLog(loadSetupLog().filter(s=>s.id!==id));
+  renderSetupLog();
+}
+
+function renderSetupLog(){
+  const el=document.getElementById('setupLog'); if(!el) return;
+  const log=loadSetupLog();
+  if(!log.length){
+    el.innerHTML='<p style="font-size:11px;color:var(--text-muted);text-align:center;margin:8px 0">Belum ada setup tersimpan. Klik "+ Simpan Setup" untuk menyimpan konfigurasi input saat ini.</p>';
+    return;
+  }
+  let html='';
+  log.forEach(s=>{
+    const modeLabel=s.mode==='manual'?'\u270f\ufe0f Manual':'\ud83d\udccb Budget';
+    const dt=s.ts?new Date(s.ts).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'';
+    const surplusAmt=s.mode==='manual'?s.surplus:Math.max(0,(s.income||0)-((s.rows||[]).reduce((a,r)=>a+(r.amt||0),0)));
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--card-warm);border-radius:var(--radius-xs);border:1px solid var(--border);margin-bottom:8px">'
+      +'<div style="flex:1;min-width:0;overflow:hidden">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name+'</div>'
+      +'<div style="font-size:11px;color:var(--text-light)">'+modeLabel+' \u00b7 '+fmtRpShort(surplusAmt)+'/bln \u00b7 '+dt+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;margin-left:8px;flex-shrink:0">'
+      +'<button onclick="recallSetup('+s.id+')" style="padding:5px 10px;background:var(--gold);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)">Pakai</button>'
+      +'<button onclick="deleteSetupLog('+s.id+')" style="padding:5px 8px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:14px;cursor:pointer;font-family:var(--font-body)" aria-label="hapus">\u00d7</button>'
+      +'</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function loadProgress(){ try { return JSON.parse(localStorage.getItem(STRAT_KEY)) || []; } catch(e){ return []; } }
+function saveProgress(a){ try { localStorage.setItem(STRAT_KEY, JSON.stringify(a)); } catch(e){} }
+function curBal(k){ return STRAT[k] ? STRAT[k].current : 0; }
+function roundTo(n){ return Math.round(n/100000)*100000; }
+
+// ----- Budget mode -----
+function budRowHTML(i,name,amt){
+  return '<div class="bud-row" id="budrow-'+i+'">'
+    + '<input type="text" class="bud-name" value="'+name+'" placeholder="Nama pos" oninput="onBudgetChange()">'
+    + '<div class="input-wrap"><span class="input-prefix">Rp</span><input type="text" class="bud-amt" value="'+(amt?amt.toLocaleString('id-ID'):'0')+'" oninput="onBudgetChange()"></div>'
+    + '<button class="bud-del" onclick="delBudgetRow('+i+')" aria-label="hapus">×</button></div>';
+}
+function renderBudgetRows(){
+  const box=document.getElementById('budRows');
+  if (box.dataset.built) return;
+  let html=''; BUDGET_DEFAULT.forEach((b,i)=>{ html+=budRowHTML(i,b[0],b[1]); });
+  box.innerHTML=html; box.dataset.built='1'; box.dataset.n=BUDGET_DEFAULT.length;
+}
+function addBudgetRow(){
+  const box=document.getElementById('budRows');
+  const n=+(box.dataset.n||0);
+  box.insertAdjacentHTML('beforeend', budRowHTML(n,'',0));
+  box.dataset.n=n+1; onBudgetChange();
+}
+function delBudgetRow(i){
+  const row=document.getElementById('budrow-'+i);
+  if (row) row.remove();
+  onBudgetChange();
+}
+function getBudget(){
+  const income=parseRp(document.getElementById('budIncome').value);
+  const saved=parseRp(document.getElementById('budSaved').value);
+  let exp=0;
+  document.querySelectorAll('#budRows .bud-amt').forEach(el=>{ exp+=parseRp(el.value); });
+  return { income, saved, exp, disposable: income-exp };
+}
+function onBudgetChange(){
+  formatInputRp(document.getElementById('budIncome'));
+  formatInputRp(document.getElementById('budSaved'));
+  document.querySelectorAll('#budRows .bud-amt').forEach(el=>formatInputRp(el));
+  const b=getBudget();
+  let html='<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-light);margin-bottom:6px"><span>Total pengeluaran</span><span>'+fmtRp(b.exp)+'</span></div>';
+  if (b.disposable < 0){
+    html+='<div class="result result-normal" style="border-color:var(--red)"><div class="result-label" style="color:var(--red)">Pengeluaran melebihi penghasilan</div><div class="result-value" style="font-size:18px;color:var(--red)">−'+fmtRp(-b.disposable)+'</div><div class="result-sub" style="color:var(--text-muted)">Kurangi salah satu pos dulu sebelum menabung.</div></div>';
+  } else {
+    html+='<div class="result result-accent"><div class="result-label" style="color:var(--gold)">Dana Bulanan untuk Tujuan</div><div class="result-value" style="font-size:22px;color:#fff">'+fmtRp(b.disposable)+'</div><div class="result-sub" style="color:rgba(255,255,255,0.6)">'+fmtRp(b.income)+' penghasilan − '+fmtRp(b.exp)+' pengeluaran</div></div>';
+    if (b.saved>0 && b.disposable>b.saved){
+      html+='<div style="margin-top:8px;padding:10px 12px;background:var(--gold-light);border-left:3px solid var(--gold);border-radius:var(--radius-xs);font-size:12px;color:var(--text-mid);line-height:1.5">\U0001F4A1 Selama ini kamu sisihkan <b>'+fmtRp(b.saved)+'</b>. Ternyata ada <b>'+fmtRp(b.disposable)+'</b> tersedia — <b>'+fmtRp(b.disposable-b.saved)+'</b> lagi bisa kamu arahkan ke tujuanmu.</div>';
+    }
+  }
+  document.getElementById('budResult').innerHTML=html;
+  renderStrategy();
+}
+function computeSurplus(){
+  if (stratMode==='manual') return parseRp(document.getElementById('stratSurplus').value);
+  return Math.max(0, getBudget().disposable);
+}
+function parseSurplus(){ return computeSurplus(); }
+function setMode(m){
+  stratMode=m;
+  document.getElementById('modeBudget').classList.toggle('active', m==='budget');
+  document.getElementById('modeManual').classList.toggle('active', m==='manual');
+  document.getElementById('budgetBox').style.display = m==='budget'?'block':'none';
+  document.getElementById('manualBox').style.display = m==='manual'?'block':'none';
+  renderStrategy();
+}
+function onSurplusChange(){ formatInputRp(document.getElementById('stratSurplus')); renderStrategy(); }
+
+// ----- Two-way balance sync -----
+function onTrackInput(k){
+  const t=document.getElementById('track-'+k);
+  formatInputRp(t);
+  const v=parseRp(t.value);
+  const c=document.getElementById(BAL_LINK[k]);
+  if (c) c.value=v.toLocaleString('id-ID');
+  if (CALC_FN[k]) CALC_FN[k]();
+  renderStrategy();
+}
+function syncTrackFromCalc(k,val){
+  const t=document.getElementById('track-'+k);
+  if (t && document.activeElement!==t) t.value=Math.round(val).toLocaleString('id-ID');
+}
+
+function monthsToTarget(cur,tgt,alloc,annualRet){
+  if (cur>=tgt) return 0;
+  if (alloc<=0) return null;
+  const r=annualRet/100/12; let b=cur,m=0;
+  while (b<tgt && m<900){ b=b*(1+r)+alloc; m++; }
+  return m>=900 ? null : m;
+}
+function dateFromMonths(m){
+  if (m===null) return 'Tak tercapai';
+  if (m===0) return 'Tercapai ✓';
+  const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+m);
+  return BulanID[d.getMonth()]+' '+d.getFullYear();
+}
+function stratReady(){ return STRAT.em && STRAT.edu && STRAT.ret; }
+
+function buildStrategyDOM(){
+  let html='';
+  STRAT_ORDER.forEach(k=>{
+    const g=STRAT[k]; if(!g) return;
+    html += '<div class="breakdown-card" style="border-left:3px solid var(--gold)">'
+      + '<div class="breakdown-header"><span class="breakdown-name">'+g.icon+' '+g.label+'</span>'
+      + '<span class="breakdown-badge" id="alloc-date-'+k+'">—</span></div>'
+      + '<div style="font-size:11px;color:var(--text-light);margin-bottom:8px">Target '+fmtRpShort(g.target)+' · disarankan '+fmtRpShort(g.monthly)+'/bln</div>'
+      + '<input type="range" id="alloc-'+k+'" min="0" max="5000000" step="100000" value="0" oninput="renderStrategy()" style="margin-bottom:6px">'
+      + '<div style="display:flex;justify-content:space-between;font-size:12px">'
+      + '<span style="color:var(--text-light)">tabung <b id="alloc-amt-'+k+'" style="color:var(--navy)">Rp 0</b>/bln</span>'
+      + '<span id="alloc-pct-'+k+'" style="font-size:11px"></span></div>'
+      + '<div class="progress-track" style="height:6px;margin-top:6px"><div class="progress-fill" id="alloc-bar-'+k+'" style="width:0%;background:var(--gold)"></div></div>'
+      + '</div>';
+  });
+  document.getElementById('stratAlloc').innerHTML = html;
+  let th='';
+  STRAT_ORDER.forEach(k=>{
+    const g=STRAT[k]; if(!g) return;
+    th += '<div class="field" style="margin-bottom:10px"><label class="field-label">'+g.icon+' '+g.label+' — saldo saat ini</label>'
+      + '<div class="input-wrap"><span class="input-prefix">Rp</span>'
+      + '<input type="text" id="track-'+k+'" value="'+Math.round(curBal(k)).toLocaleString('id-ID')+'" oninput="onTrackInput(\''+k+'\')"></div></div>';
+  });
+  document.getElementById('stratTrack').innerHTML = th;
+  document.getElementById('stratAlloc').dataset.built='1';
+}
+
+function autoAllocate(){
+  if (!stratReady()) return;
+  if (!document.getElementById('stratAlloc').dataset.built) buildStrategyDOM();
+  const surplus=parseSurplus();
+  let remaining=surplus, a={em:0,edu:0,ret:0};
+  if (curBal('em') < STRAT.em.target){ a.em=Math.min(remaining, roundTo(surplus*0.5)); remaining-=a.em; }
+  a.ret=roundTo(remaining*0.55);
+  a.edu=Math.max(0, remaining-a.ret);
+  STRAT_ORDER.forEach(k=>{ const sl=document.getElementById('alloc-'+k); sl.max=Math.max(surplus,1000000); sl.value=Math.max(0,a[k]); });
+  renderStrategy();
+}
+
+function renderStrategy(){
+  if (!stratReady()) return;
+  const allocEl=document.getElementById('stratAlloc');
+  if (!allocEl.dataset.built){
+    buildStrategyDOM();
+    if(pendingAllocRestore){
+      const pa=pendingAllocRestore; pendingAllocRestore=null;
+      const surplus=parseSurplus();
+      STRAT_ORDER.forEach(k=>{ const el=document.getElementById('alloc-'+k); if(el){ el.max=Math.max(surplus,1000000); el.value=pa[k]||0; updateSliderBg(el); } });
+      renderStrategy();
+    } else { autoAllocate(); }
+    return;
+  }
+  const surplus=parseSurplus();
+  STRAT_ORDER.forEach(k=>{ document.getElementById('alloc-'+k).max=Math.max(surplus,1000000); });
+  const allocs={}; let total=0;
+  STRAT_ORDER.forEach(k=>{ allocs[k]=+document.getElementById('alloc-'+k).value; total+=allocs[k]; updateSliderBg(document.getElementById('alloc-'+k)); });
+  const sisa=surplus-total;
+  const sisaEl=document.getElementById('stratSisa');
+  if (sisa<0) sisaEl.innerHTML='<span style="color:var(--red)">⚠️ Alokasi melebihi dana bulananmu '+fmtRp(-sisa)+'. Kurangi salah satu.</span>';
+  else sisaEl.innerHTML='<span style="color:var(--text-light)">Belum dialokasikan: <b style="color:var(--navy)">'+fmtRp(sisa)+'</b></span>';
+
+  let maxM=0, allReached=true, pctSum=0, onTrackCount=0;
+  STRAT_ORDER.forEach(k=>{
+    const g=STRAT[k], cur=curBal(k);
+    const m=monthsToTarget(cur,g.target,allocs[k],g.ret);
+    document.getElementById('alloc-date-'+k).textContent=dateFromMonths(m);
+    document.getElementById('alloc-amt-'+k).textContent=fmtRp(allocs[k]);
+    const enough = allocs[k] >= g.monthly-1;
+    if (enough || cur>=g.target) onTrackCount++;
+    const short = Math.max(0, g.monthly-allocs[k]);
+    document.getElementById('alloc-pct-'+k).innerHTML = (cur>=g.target)
+      ? '<span style="color:var(--green-accent)">✓ sudah cukup</span>'
+      : (enough ? '<span style="color:var(--green-accent)">✓ sesuai rencana</span>'
+                : '<span style="color:var(--orange)">⚠ kurang '+fmtRpShort(short)+'/bln</span>');
+    const pct=g.target>0?Math.min(100,Math.round(cur/g.target*100)):0;
+    document.getElementById('alloc-bar-'+k).style.width=pct+'%';
+    pctSum+=pct;
+    if (m===null) allReached=false; else if (m>maxM) maxM=m;
+  });
+  const merdekaPct=Math.round(pctSum/STRAT_ORDER.length);
+  document.getElementById('stratMerdeka').innerHTML=
+    '<div class="result-label" style="color:var(--gold)">Merdeka Finansial Penuh</div>'
+    +'<div class="result-value" style="font-size:22px;color:#fff">'+(allReached?dateFromMonths(maxM):'Belum tercapai')+'</div>'
+    +'<div class="result-sub" style="color:rgba(255,255,255,0.6)">'+onTrackCount+' dari 3 tujuan terdanai sesuai rencana · '+merdekaPct+'% menuju merdeka</div>';
+
+  const rr=STRAT.ret.ret/100/12, mult=Math.pow(1+rr,300);
+  document.getElementById('stratAha').innerHTML=
+    '<strong>\U0001F4A1 Biaya menunda:</strong> karena bunga berbunga, <strong>Rp 100rb</strong> yang masuk ke pensiun <strong>hari ini</strong> bernilai <strong>'+fmtRp(100000*mult)+'</strong> saat pensiun (±25 thn). Tiap rupiah yang kamu geser ke tujuan lain sekarang, itulah yang diam-diam kamu korbankan.';
+  renderHistory();
+  renderSetupLog();
+  autoSaveSetup();
+}
+
+function entryMonth(e){ return e.m || (e.ts ? e.ts.slice(0,7) : ''); }
+function monthLabel(mk){ if(!mk) return '—'; const p=mk.split('-'); return BulanID[(+p[1])-1]+' '+p[0]; }
+function snapPct(snap){
+  let ps=0;
+  STRAT_ORDER.forEach(k=>{ const g=STRAT[k], c=snap.bal[k]||0; ps += (g&&g.target>0)?Math.min(100,c/g.target*100):0; });
+  return ps/STRAT_ORDER.length;
+}
+function deleteSnapshot(mk){
+  if (typeof confirm==='function' && !confirm('Hapus catatan '+monthLabel(mk)+'?')) return;
+  saveProgress(loadProgress().filter(e=>entryMonth(e)!==mk));
+  renderStrategy();
+}
+
+function saveSnapshot(){
+  if (!document.getElementById('stratAlloc').dataset.built) return;
+  const bal={};
+  STRAT_ORDER.forEach(k=>{ const el=document.getElementById('track-'+k); bal[k]=el?parseRp(el.value):curBal(k); });
+  const now=new Date();
+  const mk=now.toISOString().slice(0,7);
+  const ds=now.toISOString().slice(0,10);
+  const h=loadProgress();
+  const idx=h.findIndex(e=>entryMonth(e)===mk);
+  if (idx>=0){ h[idx].m=mk; h[idx].ts=ds; h[idx].bal=bal; }
+  else h.push({ m:mk, ts:ds, bal:bal });
+  saveProgress(h);
+  const toast=document.getElementById('toast');
+  toast.textContent='✓ Saldo '+monthLabel(mk)+' tersimpan';
+  toast.classList.remove('hidden');
+  setTimeout(()=>toast.classList.add('hidden'),2200);
+  renderStrategy();
+}
+
+function renderHistory(){
+  const el=document.getElementById('stratHistory'); if(!el) return;
+  const h=loadProgress();
+  if (!h.length){ el.innerHTML='<p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px">Belum ada catatan. Simpan saldo pertamamu untuk mulai melihat progres.</p>'; return; }
+  const pts=h.map(snapPct);
+  const w=280,hh=56,pad=4;
+  const stepX=pts.length>1?(w-2*pad)/(pts.length-1):0;
+  const coords=pts.map((p,i)=>(pad+i*stepX).toFixed(1)+','+(hh-pad-(p/100)*(hh-2*pad)).toFixed(1)).join(' ');
+  const last=pts[pts.length-1], first=pts[0], delta=last-first;
+  const spark = pts.length>1
+    ? '<svg width="100%" viewBox="0 0 '+w+' '+hh+'" preserveAspectRatio="none" style="display:block;margin:6px 0"><polyline fill="none" stroke="#C8963E" stroke-width="2" points="'+coords+'"/></svg>'
+    : '<div style="font-size:11px;color:var(--text-muted);text-align:center;margin:8px 0">Simpan sekali lagi bulan depan untuk melihat garis progres.</div>';
+  let list='';
+  for (let i=h.length-1;i>=0;i--){
+    const e=h[i], mk=entryMonth(e);
+    list += '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 2px;border-bottom:0.5px solid var(--border)">'
+      + '<span style="font-size:13px;color:var(--text-mid)">'+monthLabel(mk)+'</span>'
+      + '<span style="display:flex;align-items:center;gap:14px">'
+      + '<span style="font-size:13px;font-weight:700;color:var(--gold)">'+Math.round(snapPct(e))+'%</span>'
+      + '<button onclick="deleteSnapshot(\''+mk+'\')" style="border:none;background:transparent;color:var(--text-muted);font-size:18px;cursor:pointer;padding:0 2px;line-height:1" aria-label="hapus catatan">×</button>'
+      + '</span></div>';
+  }
+  el.innerHTML='<div class="progress-box" style="margin-top:12px">'
+    +'<div class="progress-header"><span style="color:var(--text-mid)">Progres merdeka</span><span style="color:var(--gold)">'+last.toFixed(0)+'%</span></div>'
+    +spark
+    +'<div class="progress-footer"><span>'+h.length+' catatan</span><span>'+(delta>=0?'▲ +':'▼ ')+Math.abs(delta).toFixed(1)+'% sejak awal</span></div></div>'
+    +'<div style="margin-top:8px">'+list+'</div>';
+}
+
+function initBudget(){ renderBudgetRows(); onBudgetChange(); }
+
+// ─── Service Worker for PWA ─────────────────────────────
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'kalk-v1';
+    const URLS = ['/'];
+    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(URLS))));
+    self.addEventListener('fetch', e => e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request))
+    ));
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+// ─── Init ───────────────────────────────────────────────
+renderJenjangInputs();
+calcEducation();
+calcRetirement();
+calcEmergency();
+initBudget();
+renderStrategy();
+// Restore last setup (auto-save)
+(function(){
+  try {
+    const s=JSON.parse(localStorage.getItem(SETUP_KEY));
+    if(s) restoreSetup(s);
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
